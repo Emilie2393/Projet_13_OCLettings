@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  web:
+    image: emilie2393/oc_lettings_site:latest  # Image Docker Hub
+    container_name: django_app
+    volumes:
+      - static_volume:/app/staticfiles  # Volume pour les fichiers statiques
+    environment:
+      - DEBUG=False                     # Désactiver le mode DEBUG
+      - ALLOWED_HOSTS=localhost         # Configurer les hôtes autorisés
+    expose:
+      - "8000"                          # Port exposé pour Nginx
+
+  nginx:
+    image: nginx:latest                 # Image Nginx
+    container_name: nginx_server
+    ports:
+      - "80:80"                         # Port d'accès au site
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf  # Configuration Nginx
+      - static_volume:/app/staticfiles              # Volume pour fichiers statiques
+    depends_on:
+      - web
+
+volumes:
+  static_volume:
+  media_volume:

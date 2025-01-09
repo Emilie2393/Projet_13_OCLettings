@@ -1,5 +1,6 @@
 from django.urls import reverse, resolve
 
+
 class TestUrl():
     """
     Urls tests for the index and profiles pages
@@ -15,7 +16,3 @@ class TestUrl():
         path = reverse('profile', args=[1])
         assert path == "/profiles/1/"
         assert resolve(path).view_name == "profile"
-
-
-
-
