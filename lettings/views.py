@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .models import Letting
+from sentry_sdk import capture_message
 
 
 # Index page for the lettings part
@@ -11,7 +12,10 @@ def index(request):
 
 # Letting specific id section
 def letting(request, letting_id):
-    letting = Letting.objects.get(id=letting_id)
+    try:
+        letting = Letting.objects.get(id=letting_id)
+    except Exception as e:
+        capture_message("cet id n'existe pas", e)
     context = {
         'title': letting.title,
         'address': letting.address,
