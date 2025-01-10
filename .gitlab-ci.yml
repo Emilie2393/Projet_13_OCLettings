@@ -33,6 +33,9 @@ tests:
     - pytest --cov=oc_lettings_site --cov-report=term-missing --cov-fail-under=80
   coverage: '/^TOTAL.*\s+(\d+)%/'
   allow_failure: false
+  artifacts:
+    paths:
+      - test_results/
 
 build_and_push:
   stage: build
