@@ -54,5 +54,5 @@ build_and_push:
   only:
     - main  # Exécute uniquement sur la branche principale
   dependencies:
-    - test  # S'exécute uniquement si les tests passent
+    - tests  # S'exécute uniquement si les tests passent
 
