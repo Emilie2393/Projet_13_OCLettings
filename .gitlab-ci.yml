@@ -1,9 +1,8 @@
-image: python:3.9-bullseye
-
 stages:
+  - build
   - lint
   - test
-  - build
+  - deploy
 
 variables:
   DOCKER_REGISTRY: docker.io
@@ -15,41 +14,46 @@ cache:
   paths:
     - .pip_cache/
 
-before_script:
-  - python -m venv venv
-  - source venv/bin/activate
-  - pip install -r requirements.txt
+build_docker_image:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - echo "Authentification sur Docker Hub"
+    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+    - echo "Construction de l'image Docker"
+    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - echo "Pousser l'image sur Docker Hub"
+    - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
+  only:
+    - main
+  artifacts:
+    paths:
+      - Dockerfile
 
 linting:
   stage: lint
+  image: $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
   script:
     - flake8
   allow_failure: false
 
 tests:
   stage: test
+  image: $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
   script:
     - pytest --cov=oc_lettings_site --cov-report=term-missing --cov-fail-under=80
   coverage: '/^TOTAL.*\s+(\d+)%/'
   allow_failure: false
-  artifacts:
-    paths:
-      - test_results/
 
-build_and_push:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
-  variables:
-    DOCKER_TLS_CERTDIR: ""  # Nécessaire pour Docker in Docker
+deploy:
+  stage: deploy
+  image: $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
   script:
-    - echo "Authentification sur Docker Hub"
-    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-    - echo "Construction de l'image Docker"
-    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
-    - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
+    - echo "Démarrage de l'application"
+    - gunicorn --bind 0.0.0.0:8000 oc_lettings_site.wsgi:application
   only:
     - main
-  dependencies:
-    - tests
