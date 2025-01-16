@@ -1,50 +1,58 @@
 stages:
+  - build
   - lint
   - test
-  - build
-  - push
   - deploy
 
 variables:
-  IMAGE_NAME: "emilie2393/oc-lettings"
-  DOCKER_TAG: $CI_COMMIT_SHORT_SHA # Utilise le hash court du commit comme tag
+  DOCKER_REGISTRY: docker.io
+  DOCKER_IMAGE: emilie2393/oc_lettings
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip_cache"
+  PYTHONPATH: "$CI_PROJECT_DIR"
 
-before_script:
-  - python3 -m pip install --upgrade pip
-  - python3 -m pip install flake8 pytest
+cache:
+  paths:
+    - .pip_cache/
 
-lint:
-  stage: lint
-  script:
-    - echo "Running flake8 linter..."
-    - flake8 .  # Analyse tout le code Python dans le répertoire
-  allow_failure: false  # Arrête le pipeline en cas d'erreur
-
-test:
-  stage: test
-  script:
-    - echo "Running pytest..."
-    - pytest  # Exécute tous les tests dans le projet
-  allow_failure: false  # Arrête le pipeline en cas d'erreur
-
-build_image:
+build_docker_image:
   stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
   script:
-    - docker build -t $IMAGE_NAME:$DOCKER_TAG .
-    - docker tag $IMAGE_NAME:$DOCKER_TAG $IMAGE_NAME:latest
+    - echo "Authentification sur Docker Hub"
+    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+    - echo "Construction de l'image Docker"
+    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - echo "Pousser l'image sur Docker Hub"
+    - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
+  only:
+    - main
   artifacts:
     paths:
       - Dockerfile
 
-push_image:
-  stage: push
+linting:
+  stage: lint
+  image: $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
   script:
-    - docker push $IMAGE_NAME:$DOCKER_TAG
-    - docker push $IMAGE_NAME:latest
+    - flake8
+  allow_failure: false
+
+tests:
+  stage: test
+  image: $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
+  script:
+    - pytest --cov=oc_lettings_site --cov-report=term-missing --cov-fail-under=80
+  coverage: '/^TOTAL.*\s+(\d+)%/'
+  allow_failure: false
 
 deploy_local:
   stage: deploy
   script:
+    - echo "Pulling and running Docker image locally..."
     - docker pull $IMAGE_NAME:$DOCKER_TAG
     - docker run -d -p 8080:80 $IMAGE_NAME:$DOCKER_TAG
-  when: manual  # Déploiement manuel pour éviter de déployer automatiquement
+  when: manual
