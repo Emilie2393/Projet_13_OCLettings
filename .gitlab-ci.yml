@@ -24,10 +24,7 @@ setup_gitlab_runner:
     DOCKER_TLS_CERTDIR: ""
   script:
     - echo "Lancement du conteneur GitLab Runner"
-    - docker run -d --name gitlab-runner --restart always \
-        -v /srv/gitlab-runner/config:/etc/gitlab-runner \
-        -v /var/run/docker.sock:/var/run/docker.sock \
-        gitlab/gitlab-runner:latest
+    - docker run -d --name gitlab-runner --restart always -v /srv/gitlab-runner/config:/etc/gitlab-runner -v /var/run/docker.sock:/var/run/docker.sock gitlab/gitlab-runner:latest
     - echo "Enregistrement du GitLab Runner"
     - docker exec -it gitlab-runner gitlab-runner register \
         --non-interactive \
