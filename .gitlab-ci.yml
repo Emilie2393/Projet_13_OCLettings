@@ -1,4 +1,5 @@
 stages:
+  - setup-runner
   - build
   - lint
   - test
@@ -13,6 +14,31 @@ variables:
 cache:
   paths:
     - .pip_cache/
+
+setup_gitlab_runner:
+  stage: setup-runner
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - echo "Lancement du conteneur GitLab Runner"
+    - docker run -d --name gitlab-runner --restart always \
+        -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        gitlab/gitlab-runner:latest
+    - echo "Enregistrement du GitLab Runner"
+    - docker exec -it gitlab-runner gitlab-runner register \
+        --non-interactive \
+        --url "$CI_SERVER_URL" \
+        --registration-token "$CI_SERVER_TOKEN" \
+        --description "Docker-Runner" \
+        --tag-list "docker,ci" \
+        --executor "docker" \
+        --docker-image "python:3.10"
+  only:
+    - main
 
 build_docker_image:
   stage: build
