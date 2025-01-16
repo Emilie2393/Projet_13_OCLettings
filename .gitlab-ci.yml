@@ -24,9 +24,12 @@ setup_gitlab_runner:
     DOCKER_TLS_CERTDIR: ""
   script:
     - echo "Lancement du conteneur GitLab Runner"
-    - docker run -d --name gitlab-runner --restart always -v /srv/gitlab-runner/config:/etc/gitlab-runner -v /var/run/docker.sock:/var/run/docker.sock gitlab/gitlab-runner:latest
+    - docker run -d --name gitlab-runner --restart always \
+        -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        gitlab/gitlab-runner:latest
     - echo "Enregistrement du GitLab Runner"
-    - docker exec -it gitlab-runner gitlab-runner register \
+    - docker exec gitlab-runner gitlab-runner register \
         --non-interactive \
         --url "$CI_SERVER_URL" \
         --registration-token "$CI_SERVER_TOKEN" \
@@ -36,6 +39,7 @@ setup_gitlab_runner:
         --docker-image "python:3.10"
   only:
     - main
+
 
 build_docker_image:
   stage: build
