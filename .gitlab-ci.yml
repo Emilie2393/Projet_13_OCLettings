@@ -41,6 +41,7 @@ setup_gitlab_runner:
     - main
 
 
+
 build_docker_image:
   stage: build
   image: docker:latest
