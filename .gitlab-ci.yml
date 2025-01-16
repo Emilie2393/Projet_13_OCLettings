@@ -65,5 +65,8 @@ deploy_local:
     - echo "Pulling and running Docker image locally..."
     - docker pull $IMAGE_NAME:$DOCKER_TAG
     - docker run -d -p 8000:8000 $IMAGE_NAME:$DOCKER_TAG
+    - echo "Running collectstatic command inside the container..."
+    - docker exec oc_lettings_site python manage.py collectstatic --noinput
+    - echo "The site should now be accessible on http://localhost:8000"
   when: manual
 
