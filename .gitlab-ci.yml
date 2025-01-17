@@ -68,13 +68,12 @@ deploy_local:
     - docker stop $CONTAINER_NAME || true
     - docker rm $CONTAINER_NAME || true
 
-    - echo "Checking if port 8000 is in use on Windows..."
+    - echo "Checking if port 8000 is in use..."
     # Vérifier si le port 8000 est occupé
-    - netstat -ano | findstr :8000
-    - if [ $? -eq 0 ]; then
+    - if netstat -tuln | grep ':8000' > /dev/null; then
         echo "Port 8000 is in use. Killing the process...";
-        PID=$(netstat -ano | findstr :8000 | awk '{print $5}');
-        taskkill /PID $PID /F;
+        PROCESS_ID=$(netstat -tulnp | grep ':8000' | awk '{print $6}' | cut -d'/' -f1);
+        kill -9 $PROCESS_ID || true;
       else
         echo "Port 8000 is free.";
       fi
