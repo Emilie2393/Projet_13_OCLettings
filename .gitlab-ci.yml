@@ -10,11 +10,11 @@ variables:
   DOCKER_IMAGE: emilie2393/oc_lettings
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip_cache"
   PYTHONPATH: "$CI_PROJECT_DIR"
+  DOCKER_HOST: tcp://docker:2375  # Ajout de cette ligne pour la connexion Docker
 
 cache:
   paths:
     - .pip_cache/
-
 
 build_docker_image:
   stage: build
@@ -51,7 +51,6 @@ tests:
   coverage: '/^TOTAL.*\s+(\d+)%/'
   allow_failure: false
 
-
 deploy_local:
   stage: deploy
   image: docker:latest
@@ -76,7 +75,7 @@ save_image:
   stage: save_image
   image: docker:latest
   script:
-    - docker save [MASKED]/oc_lettings:$CI_COMMIT_SHORT_SHA -o oc_lettings.tar
+    - docker save $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA -o oc_lettings.tar
   artifacts:
     paths:
       - oc_lettings.tar
