@@ -50,6 +50,7 @@ tests:
   coverage: '/^TOTAL.*\s+(\d+)%/'
   allow_failure: false
 
+
 deploy_local:
   stage: deploy
   image: docker:latest
@@ -60,15 +61,13 @@ deploy_local:
     IMAGE_NAME: $DOCKER_IMAGE
     DOCKER_TAG: $CI_COMMIT_SHORT_SHA
   script:
-    - echo "Stopping and removing any existing container named oc_lettings_site..."
-    - docker rm -f oc_lettings_site || true
-    - echo "Checking Docker version"
-    - docker --version  # Affiche la version de Docker
+    - echo "Stopping and removing any existing containers..."
+    - docker stop oc_lettings_site || true
+    - docker rm oc_lettings_site || true
     - echo "Pulling and running Docker image locally..."
     - docker pull $IMAGE_NAME:$DOCKER_TAG
-    - docker run -d -p 8000:8000 --name oc_lettings_site $IMAGE_NAME:$DOCKER_TAG
-    - echo "Running collectstatic command inside the container..."
-    - docker exec oc_lettings_site python manage.py collectstatic --noinput
-    - echo "The site should now be accessible on http://localhost:8000"
+    - docker run --name oc_lettings_site -d -p 8000:8000 $IMAGE_NAME:$DOCKER_TAG
+    - echo "Verifying that the container is running..."
+    - docker ps
   when: manual
 
