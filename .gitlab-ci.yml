@@ -61,9 +61,6 @@ deploy_local:
     IMAGE_NAME: $DOCKER_IMAGE
     DOCKER_TAG: $CI_COMMIT_SHORT_SHA
   script:
-    - echo "Stopping and removing any existing containers..."
-    - docker stop oc_lettings_site || true
-    - docker rm oc_lettings_site || true
     - echo "Pulling and running Docker image locally..."
     - docker pull $IMAGE_NAME:$DOCKER_TAG
     - docker run --name oc_lettings_site -d -p 8000:8000 $IMAGE_NAME:$DOCKER_TAG
