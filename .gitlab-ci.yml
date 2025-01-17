@@ -68,6 +68,21 @@ deploy_local:
     - docker stop $CONTAINER_NAME || true
     - docker rm $CONTAINER_NAME || true
 
+    - echo "Checking if port 8000 is in use on Windows..."
+    # Vérifier si le port 8000 est occupé
+    - netstat -ano | findstr :8000
+    - if [ $? -eq 0 ]; then
+        echo "Port 8000 is in use. Killing the process...";
+        PID=$(netstat -ano | findstr :8000 | awk '{print $5}');
+        taskkill /PID $PID /F;
+      else
+        echo "Port 8000 is free.";
+      fi
+    - echo "Checking Docker containers using port 8000..."
+    # Vérifier et arrêter les conteneurs Docker utilisant le port 8000
+    - docker ps -q --filter "publish=8000" | xargs -r docker stop
+    - docker ps -q --filter "publish=8000" | xargs -r docker rm
+
     # Étape : Pull de l'image Docker
     - echo "Pulling Docker image..."
     - docker pull $IMAGE_NAME:$DOCKER_TAG
