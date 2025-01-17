@@ -9,11 +9,11 @@ variables:
   DOCKER_IMAGE: emilie2393/oc_lettings
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip_cache"
   PYTHONPATH: "$CI_PROJECT_DIR"
+  CONTAINER_NAME: oc_lettings_site  # Nom personnalisé du conteneur
 
 cache:
   paths:
     - .pip_cache/
-
 
 build_docker_image:
   stage: build
@@ -62,8 +62,25 @@ deploy_local:
   script:
     - echo "Checking Docker version"
     - docker --version  # Affiche la version de Docker
-    - echo "Pulling and running Docker image locally..."
+
+    # Étape : Arrêter et supprimer le conteneur existant si nécessaire
+    - echo "Arrêt et suppression du conteneur existant (s'il existe)..."
+    - docker stop $CONTAINER_NAME || true
+    - docker rm $CONTAINER_NAME || true
+
+    # Étape : Pull de l'image Docker
+    - echo "Pulling Docker image..."
     - docker pull $IMAGE_NAME:$DOCKER_TAG
-    - docker run -d -p 8000:8000 $IMAGE_NAME:$DOCKER_TAG
+
+    # Étape : Exécution du conteneur et collecte des fichiers statiques
+    - echo "Démarrage du conteneur et collecte des fichiers statiques..."
+    - docker run --name $CONTAINER_NAME -d -p 8000:8000 $IMAGE_NAME:$DOCKER_TAG
+
+    # Étape : Collecte des fichiers statiques dans le conteneur
+    - docker exec $CONTAINER_NAME python manage.py collectstatic --noinput
+
+    # Étape : Affichage des conteneurs en cours d'exécution
+    - echo "Conteneur en cours d'exécution :"
+    - docker ps
   when: manual
 
