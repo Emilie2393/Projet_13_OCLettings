@@ -72,8 +72,8 @@ deploy_local:
     - docker ps
   when: manual
 
-  save_image:
-  stage: deploy
+save_image:
+  stage: save_image
   script:
     - docker save [MASKED]/oc_lettings:$CI_COMMIT_SHORT_SHA -o oc_lettings.tar
   artifacts:
