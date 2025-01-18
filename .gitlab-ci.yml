@@ -63,17 +63,17 @@ deploy_local:
     - echo "Checking Docker version"
     - docker --version  # Affiche la version de Docker
 
+    - echo "Checking if port 8000 is in use locally..."
     - |
-      echo "Checking if port 8000 is in use locally..."
-      if lsof -i :8000 > /dev/null 2>&1; then
-        echo "Port 8000 is in use. Attempting to free it...";
-        PID=$(lsof -ti :8000);
-        kill -9 $PID || echo "Failed to kill process on port 8000";
+      PORT=8000
+      CONTAINER_ID=$(docker ps -q --filter "publish=$PORT")
+      if [ -n "$CONTAINER_ID" ]; then
+        echo "Port $PORT is in use by container $CONTAINER_ID. Stopping and removing it..."
+        docker stop "$CONTAINER_ID"
+        docker rm "$CONTAINER_ID"
       else
-        echo "Port 8000 is free.";
+        echo "Port $PORT is free."
       fi
-    - docker ps -q --filter "publish=8000" | xargs -r docker stop
-    - docker ps -q --filter "publish=8000" | xargs -r docker rm
 
     # Étape : Pull de l'image Docker
     - echo "Pulling Docker image..."
