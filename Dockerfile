@@ -13,9 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Collecter les fichiers statiques
 RUN python manage.py collectstatic --noinput
 
-# Ajouter Nginx pour servir les fichiers statiques
-RUN apt-get update && apt-get install -y nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Exposer le port par défaut de Django
 EXPOSE 8000
