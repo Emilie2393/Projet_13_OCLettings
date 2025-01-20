@@ -63,18 +63,6 @@ deploy_local:
     - echo "Checking Docker version"
     - docker --version  # Affiche la version de Docker
 
-    - echo "Checking if port 8000 is in use locally..."
-    - |
-      PORT=8000
-      CONTAINER_ID=$(docker ps -q --filter "publish=$PORT")
-      if [ -n "$CONTAINER_ID" ]; then
-        echo "Port $PORT is in use by container $CONTAINER_ID. Stopping and removing it..."
-        docker stop "$CONTAINER_ID"
-        docker rm "$CONTAINER_ID"
-      else
-        echo "Port $PORT is free."
-      fi
-
     # Étape : Pull de l'image Docker
     - echo "Pulling Docker image..."
     - docker pull $IMAGE_NAME:$DOCKER_TAG
