@@ -2,14 +2,13 @@ stages:
   - build
   - lint
   - test
-  - deploy
 
 variables:
   DOCKER_REGISTRY: docker.io
   DOCKER_IMAGE: emilie2393/oc_lettings
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip_cache"
   PYTHONPATH: "$CI_PROJECT_DIR"
-  CONTAINER_NAME: oc_lettings_site  # Nom personnalisé du conteneur
+  CONTAINER_NAME: oc_lettings_site
 
 cache:
   paths:
@@ -49,33 +48,4 @@ tests:
     - pytest --cov=oc_lettings_site --cov-report=term-missing --cov-fail-under=80
   coverage: '/^TOTAL.*\s+(\d+)%/'
   allow_failure: false
-
-# deploy_local:
-#   stage: deploy
-#   image: docker:latest
-#   services:
-#     - docker:dind
-#   variables:
-#     DOCKER_TLS_CERTDIR: ""
-#     IMAGE_NAME: $DOCKER_IMAGE
-#     DOCKER_TAG: $CI_COMMIT_SHORT_SHA
-#   script:
-#     - echo "Checking Docker version"
-#     - docker --version  # Affiche la version de Docker
-
-#     # Étape : Pull de l'image Docker
-#     - echo "Pulling Docker image..."
-#     - docker pull $IMAGE_NAME:$DOCKER_TAG
-
-#     # Étape : Exécution du conteneur et collecte des fichiers statiques
-#     - echo "Démarrage du conteneur et collecte des fichiers statiques..."
-#     - docker run --name $CONTAINER_NAME -d -p 8000:8000 $IMAGE_NAME:$DOCKER_TAG
-
-#     # Étape : Collecte des fichiers statiques dans le conteneur
-#     - docker exec $CONTAINER_NAME python manage.py collectstatic --noinput
-
-#     # Étape : Affichage des conteneurs en cours d'exécution
-#     - echo "Conteneur en cours d'exécution :"
-#     - docker ps
-#   when: manual
 
