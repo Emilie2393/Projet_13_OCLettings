@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: oc-lettings
+    runtime: docker
+    image: emilie2393/oc_lettings:latest
+    region: frankfurt
+    plan: free
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "yourdomain.com"
+    healthCheckPath: "/"
+    autoDeploy: true
+    pullRequestPreviewsEnabled: false

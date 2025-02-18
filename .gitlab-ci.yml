@@ -28,6 +28,7 @@ build_docker_image:
     - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
     - echo "Pousser l'image sur Docker Hub"
     - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker push $DOCKER_IMAGE:latest
   only:
     - main
   artifacts:
@@ -36,16 +37,25 @@ build_docker_image:
 
 linting:
   stage: lint
-  image: $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
+  image: $DOCKER_IMAGE:latest
   script:
     - flake8
   allow_failure: false
 
 tests:
   stage: test
-  image: $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
+  image: $DOCKER_IMAGE:latest
   script:
     - pytest --cov=oc_lettings_site --cov-report=term-missing --cov-fail-under=80
   coverage: '/^TOTAL.*\s+(\d+)%/'
   allow_failure: false
+
+deploy_to_render:
+  stage: deploy
+  image: curlimages/curl:latest
+  script:
+    - echo "Déploiement sur Render"
+    - curl -X POST "https://api.render.com/deploy/srv-XXXXX?key=$RENDER_DEPLOY_HOOK"
+  only:
+    - main
 
