@@ -2,6 +2,7 @@ stages:
   - build
   - lint
   - test
+  - deploy
 
 variables:
   DOCKER_REGISTRY: docker.io
