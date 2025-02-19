@@ -58,34 +58,27 @@ build_docker_image:
     - echo "Pousser l'image sur Docker Hub"
     - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker push $DOCKER_IMAGE:latest
+    - echo $CI_COMMIT_SHORT_SHA > image_tag.txt
   only:
     - main
   artifacts:
     paths:
       - Dockerfile
+      - image_tag.txt
 
 deploy_to_render:
   stage: deploy
-  image: alpine:latest  # Utilisation de l'image Alpine
+  image: alpine:latest
   script:
-    - echo "Installation de jq..."
-    - apk --no-cache add jq  # Installation de jq
+    - apk --no-cache add curl jq
+    - echo "Récupération du tag d'image..."
+    - IMAGE_TAG=$(cat image_tag.txt)
 
-    - echo "Vérification du dernier déploiement sur Render..."
-    
+    - echo "Déclenchement du déploiement sur Render..."
     - |
-      LAST_DEPLOY=$(curl -s -X GET "$RENDER_HOOK/deploys" -H "Accept: application/json")
-      LAST_STATUS=$(echo $LAST_DEPLOY | jq -r '.[0].status')
-
-      echo "Statut actuel du dernier déploiement : $LAST_STATUS"
-
-    - |
-      if [[ "$LAST_STATUS" != "live" ]]; then
-        echo "🚨 Le dernier déploiement n'est pas en ligne !"
-        exit 1
-      else
-        echo "✅ Le dernier déploiement est bien en ligne !"
-      fi
+      curl -s -X POST "$RENDER_HOOK" \
+        -H "Accept: application/json" \
+        -d "{\"image\":\"docker.io/emilie2393/oc_lettings:$IMAGE_TAG\"}"
   only:
     - main
 
