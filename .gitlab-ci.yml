@@ -11,6 +11,7 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip_cache"
   PYTHONPATH: "$CI_PROJECT_DIR"
   CONTAINER_NAME: oc_lettings_site
+  RENDER_HOOK: "https://api.render.com/deploy/srv-cuqb62lds78s739ak1g0?key=wrz_P66XA-E"
 
 
 cache:
@@ -61,6 +62,42 @@ build_docker_image:
   artifacts:
     paths:
       - Dockerfile
+
+deploy_to_render:
+  stage: deploy
+  image: curlimages/curl:latest
+  script:
+    - echo "Déclenchement du déploiement sur Render..."
+    - |
+      DEPLOY_RESPONSE=$(curl -s -X POST "$RENDER_HOOK/deploys" \
+        -H "Accept: application/json" \
+        -H "Authorization: Bearer $RENDER_API_KEY" \
+        -d '')
+
+      DEPLOY_ID=$(echo $DEPLOY_RESPONSE | jq -r '.id')
+
+      echo "Déploiement en cours avec ID: $DEPLOY_ID"
+
+    - echo "Vérification du statut du déploiement..."
+    - |
+      STATUS="in_progress"
+      while [[ "$STATUS" == "in_progress" || "$STATUS" == "queued" ]]; do
+        sleep 10  # Attendre 10 secondes avant de revérifier
+        STATUS=$(curl -s -X GET "$RENDER_HOOK/deploys/$DEPLOY_ID" \
+          -H "Accept: application/json" \
+          -H "Authorization: Bearer $RENDER_API_KEY" | jq -r '.status')
+        echo "Statut actuel: $STATUS"
+      done
+
+    - |
+      if [[ "$STATUS" != "live" ]]; then
+        echo "🚨 Le déploiement a échoué !"
+        exit 1
+      else
+        echo "✅ Déploiement réussi !"
+      fi
+  only:
+    - main
 
 
 
