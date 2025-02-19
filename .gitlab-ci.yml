@@ -1,8 +1,8 @@
 stages:
-  - build
   - lint
   - test
-  - deploy
+  - build
+  # - deploy
 
 variables:
   DOCKER_REGISTRY: docker.io
@@ -14,6 +14,21 @@ variables:
 cache:
   paths:
     - .pip_cache/
+
+linting:
+  stage: lint
+  image: $DOCKER_IMAGE:latest
+  script:
+    - flake8
+  allow_failure: false
+
+tests:
+  stage: test
+  image: $DOCKER_IMAGE:latest
+  script:
+    - pytest --cov=oc_lettings_site --cov-report=term-missing --cov-fail-under=80
+  coverage: '/^TOTAL.*\s+(\d+)%/'
+  allow_failure: false
 
 build_docker_image:
   stage: build
@@ -37,27 +52,12 @@ build_docker_image:
     paths:
       - Dockerfile
 
-linting:
-  stage: lint
-  image: $DOCKER_IMAGE:latest
-  script:
-    - flake8
-  allow_failure: false
-
-tests:
-  stage: test
-  image: $DOCKER_IMAGE:latest
-  script:
-    - pytest --cov=oc_lettings_site --cov-report=term-missing --cov-fail-under=80
-  coverage: '/^TOTAL.*\s+(\d+)%/'
-  allow_failure: false
-
-deploy_to_render:
-  stage: deploy
-  image: curlimages/curl:latest
-  script:
-    - echo "Déploiement sur Render"
-    - curl -X POST "https://api.render.com/deploy/srv-cuqb62lds78s739ak1g0?key=wrz_P66XA-E"
-  only:
-    - main
+# deploy_to_render:
+#   stage: deploy
+#   image: curlimages/curl:latest
+#   script:
+#     - echo "Déploiement sur Render"
+#     - curl -X POST "https://api.render.com/deploy/srv-cuqb62lds78s739ak1g0?key=wrz_P66XA-E"
+#   only:
+#     - main
 
