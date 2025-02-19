@@ -1,63 +1,45 @@
 stages:
+  - install
   - lint
   - test
-  - build
-  # - deploy
 
 variables:
-  DOCKER_REGISTRY: docker.io
-  DOCKER_IMAGE: emilie2393/oc_lettings
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip_cache"
   PYTHONPATH: "$CI_PROJECT_DIR"
-  CONTAINER_NAME: oc_lettings_site
 
 cache:
   paths:
     - .pip_cache/
 
+install_deps:
+  stage: install
+  image: python:3.9
+  script:
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+  artifacts:
+    paths:
+      - .venv/
+    expire_in: 1h
+
 linting:
   stage: lint
-  image: $DOCKER_IMAGE:latest
+  image: python:3.9
+  dependencies:
+    - install_deps
   script:
+    - source .venv/bin/activate
     - flake8
   allow_failure: false
 
 tests:
   stage: test
-  image: $DOCKER_IMAGE:latest
+  image: python:3.9
+  dependencies:
+    - install_deps
   script:
+    - source .venv/bin/activate
     - pytest --cov=oc_lettings_site --cov-report=term-missing --cov-fail-under=80
   coverage: '/^TOTAL.*\s+(\d+)%/'
   allow_failure: false
-
-build_docker_image:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
-  variables:
-    DOCKER_TLS_CERTDIR: ""
-  script:
-    - echo "Authentification sur Docker Hub"
-    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-    - echo "Construction de l'image Docker"
-    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
-    - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA $DOCKER_IMAGE:latest
-    - echo "Pousser l'image sur Docker Hub"
-    - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
-    - docker push $DOCKER_IMAGE:latest
-  only:
-    - main
-  artifacts:
-    paths:
-      - Dockerfile
-
-# deploy_to_render:
-#   stage: deploy
-#   image: curlimages/curl:latest
-#   script:
-#     - echo "Déploiement sur Render"
-#     - curl -X POST "https://api.render.com/deploy/srv-cuqb62lds78s739ak1g0?key=wrz_P66XA-E"
-#   only:
-#     - main
 
