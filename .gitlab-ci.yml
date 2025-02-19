@@ -1,5 +1,6 @@
+image: python:3.9
+
 stages:
-  - install
   - lint
   - test
 
@@ -11,36 +12,23 @@ cache:
   paths:
     - .pip_cache/
 
-install_deps:
-  stage: install
-  image: python:3.9
-  script:
-    - python -m venv venv
-    - pip install --upgrade pip
-    - pip install -r requirements.txt
-  artifacts:
-    paths:
-      - .venv/
-    expire_in: 1h
+before_script:
+  - apt-get update && apt-get install -y python3-venv
+  - python3 -m venv venv
+  - source venv/bin/activate
+  - pip install -r requirements.txt
 
 linting:
   stage: lint
-  image: python:3.9
-  dependencies:
-    - install_deps
   script:
-    - source .venv/bin/activate
     - flake8
   allow_failure: false
 
 tests:
   stage: test
-  image: python:3.9
-  dependencies:
-    - install_deps
   script:
-    - source .venv/bin/activate
     - pytest --cov=oc_lettings_site --cov-report=term-missing --cov-fail-under=80
   coverage: '/^TOTAL.*\s+(\d+)%/'
   allow_failure: false
+
 
