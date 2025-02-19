@@ -66,45 +66,29 @@ build_docker_image:
 
 deploy_to_render:
   stage: deploy
-  image: curlimages/curl:latest
+  image: alpine:latest  # Utilisation de l'image Alpine
   script:
-    - echo "Déclenchement du déploiement sur Render..."
-    - apk add --no-cache jq  # Installation de jq (nécessaire pour traiter la réponse JSON)
+    - echo "Installation de jq..."
+    - apk --no-cache add jq  # Installation de jq
+
+    - echo "Vérification du dernier déploiement sur Render..."
     
-    # Déclencher le déploiement sur Render
     - |
-      DEPLOY_RESPONSE=$(curl -s -X POST "$RENDER_HOOK" -H "Accept: application/json")
-      echo "Réponse Render: $DEPLOY_RESPONSE"
+      LAST_DEPLOY=$(curl -s -X GET "$RENDER_HOOK/deploys" -H "Accept: application/json")
+      LAST_STATUS=$(echo $LAST_DEPLOY | jq -r '.[0].status')
 
-      DEPLOY_ID=$(echo $DEPLOY_RESPONSE | jq -r '.id')
+      echo "Statut actuel du dernier déploiement : $LAST_STATUS"
 
-      if [[ "$DEPLOY_ID" == "null" || -z "$DEPLOY_ID" ]]; then
-        echo "🚨 Erreur : Impossible d'obtenir l'ID du déploiement"
-        exit 1
-      fi
-
-      echo "Déploiement en cours avec ID: $DEPLOY_ID"
-
-    # Vérifier le statut du déploiement
-    - echo "Vérification du statut du déploiement..."
     - |
-      STATUS="in_progress"
-      while [[ "$STATUS" == "in_progress" || "$STATUS" == "queued" ]]; do
-        sleep 10  # Attendre 10 secondes avant de revérifier
-        STATUS=$(curl -s -X GET "https://api.render.com/v1/deploys/$DEPLOY_ID" -H "Accept: application/json" | jq -r '.status')
-        echo "Statut actuel: $STATUS"
-      done
-
-    # Vérification finale du statut
-    - |
-      if [[ "$STATUS" != "live" ]]; then
-        echo "🚨 Le déploiement a échoué !"
+      if [[ "$LAST_STATUS" != "live" ]]; then
+        echo "🚨 Le dernier déploiement n'est pas en ligne !"
         exit 1
       else
-        echo "✅ Déploiement réussi !"
+        echo "✅ Le dernier déploiement est bien en ligne !"
       fi
   only:
     - main
+
 
 
 
