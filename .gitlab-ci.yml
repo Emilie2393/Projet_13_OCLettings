@@ -57,7 +57,7 @@ deploy_to_render:
   image: curlimages/curl:latest
   script:
     - echo "Déploiement sur Render"
-    - curl -X POST "https://api.render.com/deploy/srv-XXXXX?key=$RENDER_DEPLOY_HOOK"
+    - curl -X POST "https://api.render.com/deploy/srv-cuqb62lds78s739ak1g0?key=wrz_P66XA-E"
   only:
     - main
 
