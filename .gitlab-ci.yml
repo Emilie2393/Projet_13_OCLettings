@@ -12,7 +12,7 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip_cache"
   PYTHONPATH: "$CI_PROJECT_DIR"
   CONTAINER_NAME: oc_lettings_site
-  RENDER_HOOK: "https://api.render.com/deploy/srv-cuqb62lds78s739ak1g0?key=wrz_P66XA-E"
+  RENDER_HOOK: "https://api.render.com/deploy/srv-curea3rqf0us73fismtg?key=hcRazhRZjRY"
 
 
 cache:
@@ -71,12 +71,12 @@ deploy_to_render:
     - apk --no-cache add curl jq
     - IMAGE_TAG=$CI_COMMIT_SHORT_SHA
     - echo "Déclenchement du déploiement sur Render avec l'image: docker.io/emilie2393/oc_lettings:$IMAGE_TAG"
-    - |
-      curl -s -X POST "$RENDER_HOOK" \
+    - curl -s -X POST "$RENDER_HOOK" \
         -H "Content-Type: application/json" \
         -d "{\"clearCache\": false, \"image\":\"docker.io/emilie2393/oc_lettings:$IMAGE_TAG\"}"
   only:
     - main
+
 
 
 
