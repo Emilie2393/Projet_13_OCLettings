@@ -71,11 +71,13 @@ deploy_to_render:
     - apk --no-cache add curl jq
     - export IMAGE_TAG="$CI_COMMIT_SHORT_SHA"
     - echo "Déclenchement du déploiement sur Render avec l'image: docker.io/emilie2393/oc_lettings:$IMAGE_TAG"
-    - curl -s -X POST "$RENDER_HOOK" \
-        -H "Content-Type: application/json" \
-        -d "{\"clearCache\": false, \"image\":\"docker.io/emilie2393/oc_lettings:$IMAGE_TAG\"}"
+    - >
+      curl -s -X POST "$RENDER_HOOK" 
+      -H "Content-Type: application/json" 
+      -d "{\"clearCache\": false, \"image\":\"docker.io/emilie2393/oc_lettings:$IMAGE_TAG\"}"
   only:
     - main
+
 
 
 
