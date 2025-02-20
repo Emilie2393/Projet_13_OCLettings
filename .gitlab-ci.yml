@@ -12,7 +12,7 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip_cache"
   PYTHONPATH: "$CI_PROJECT_DIR"
   CONTAINER_NAME: oc_lettings_site
-  RENDER_HOOK: "https://api.render.com/deploy/srv-curea3rqf0us73fismtg?key=hcRazhRZjRY"
+  RENDER_HOOK: "https://api.render.com/deploy/srv-curf0cqj1k6c73arlh0g?key=BupwfnXLcY4"
 
 
 cache:
@@ -75,7 +75,7 @@ deploy_to_render:
     - |
       curl -s -X POST "$RENDER_HOOK" \
         -H "Accept: application/json" \
-        -d "{\"image\":\"docker.io/emilie2393/oc_lettings:$IMAGE_TAG\"}"
+        -d "{\"clearCache\": false, \"image\": \"docker.io/emilie2393/oc_lettings:$IMAGE_TAG\"}"
   only:
     - main
 
