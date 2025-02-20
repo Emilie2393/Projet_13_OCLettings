@@ -58,29 +58,26 @@ build_docker_image:
     - echo "Pousser l'image sur Docker Hub"
     - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker push $DOCKER_IMAGE:latest
-    - echo $CI_COMMIT_SHORT_SHA > image_tag.txt
   only:
     - main
   artifacts:
     paths:
       - Dockerfile
-      - image_tag.txt
 
 deploy_to_render:
   stage: deploy
   image: alpine:latest
   script:
     - apk --no-cache add curl jq
-    - echo "Récupération du tag d'image..."
-    - IMAGE_TAG=$(cat image_tag.txt)
-
-    - echo "Déclenchement du déploiement sur Render..."
+    - IMAGE_TAG=$CI_COMMIT_SHORT_SHA
+    - echo "Déclenchement du déploiement sur Render avec l'image: docker.io/emilie2393/oc_lettings:$IMAGE_TAG"
     - |
       curl -s -X POST "$RENDER_HOOK" \
-        -H "Accept: application/json" \
-        -d "{\"image\":\"docker.io/emilie2393/oc_lettings:$IMAGE_TAG\"}"
+        -H "Content-Type: application/json" \
+        -d "{\"clearCache\": false, \"image\":\"docker.io/emilie2393/oc_lettings:$IMAGE_TAG\"}"
   only:
     - main
+
 
 
 
