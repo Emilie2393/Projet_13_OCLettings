@@ -15,7 +15,7 @@ def letting(request, letting_id):
     try:
         letting = Letting.objects.get(id=letting_id)
     except Exception as e:
-        capture_message("cet id n'existe pas", e)
+        capture_message("This id doesn't exist", e)
     context = {
         'title': letting.title,
         'address': letting.address,
