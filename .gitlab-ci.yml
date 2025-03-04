@@ -62,20 +62,19 @@ build_docker_image:
     paths:
       - Dockerfile
 
-
-deploy_to_render:
-  stage: deploy
-  image: alpine:latest
-  script:
-    - apk --no-cache add curl jq
-    - export IMAGE_TAG="$CI_COMMIT_SHORT_SHA"
-    - echo "Déclenchement du déploiement sur Render..."
-    - |
-      curl -s -X POST "$RENDER_HOOK" \
-        -H "Accept: application/json" \
-        -d "{\"clearCache\": false, \"image\": \"docker.io/emilie2393/oc_lettings:$IMAGE_TAG\"}"
-  only:
-    - main
+# deploy_to_render:
+#   stage: deploy
+#   image: alpine:latest
+#   script:
+#     - apk --no-cache add curl jq
+#     - export IMAGE_TAG="$CI_COMMIT_SHORT_SHA"
+#     - echo "Déclenchement du déploiement sur Render..."
+#     - |
+#       curl -s -X POST "$RENDER_HOOK" \
+#         -H "Accept: application/json" \
+#         -d "{\"clearCache\": false, \"image\": \"docker.io/emilie2393/oc_lettings:$IMAGE_TAG\"}"
+#   only:
+#     - main
 
 
 
