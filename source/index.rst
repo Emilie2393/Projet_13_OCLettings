@@ -73,7 +73,8 @@ documentation for details.
    docker stop oc_lettings_site; docker rm oc_lettings_site }; docker run --name oc_lettings_site -d -p 8000:8000 emilie2393/oc_lettings:$DOCKER_TAG``
    * You can now see the container running into your Docker desktop and access the app on http://localhost:8000/
 
-   To deploy the website on Render, 
+   To deploy the website on Render, you need:
+   * Be sure to clone the correct repository: https://gitlab.com/learning2431952/oc_lettings.git
 
 
 
