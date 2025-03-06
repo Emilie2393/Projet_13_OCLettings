@@ -1,77 +1,77 @@
-## Résumé
+**Introduction**
 
-Site web d'Orange County Lettings
+   Holiday Homes is a real estate website for holiday lettings.
 
-## Développement local
+   The website has undergone a complete overhaul to isolate the two parts: lettings and profiles, and make the script more scalable. 
+   The database used is an sqlite database. The old model have been split between two new ones: lettings and profiles. 
+   
+   Now, the project contain the main app oc_lettings_site, and then profiles and lettings. 
+   
+   The data in the sqlite database was transferred from the old tables to the new ones:
+   * lettings_address
+   * lettings_letting
+   * profiles_profile
 
-### Prérequis
+   A sentry monitoring has been added. The admin section has been corrected and the project has been linted. 
 
-- Compte GitHub avec accès en lecture à ce repository
-- Git CLI
-- SQLite3 CLI
-- Interpréteur Python, version 3.6 ou supérieure
+   A 404 and 500 page have been added and test coverage is 84%. 
 
-Dans le reste de la documentation sur le développement local, il est supposé que la commande `python` de votre OS shell exécute l'interpréteur Python ci-dessus (à moins qu'un environnement virtuel ne soit activé).
+   **Installation**
 
-### macOS / Linux
+   * First, you need a :
+      * Sentry account;
+      * Docker desktop application;
+      * Docker Hub account;
+      * Python 3.x;
+   
+   * Clone the correct repository: https://gitlab.com/learning2431952/oc_lettings.git
 
-#### Cloner le repository
+   * Then, create a virtual environment at the root of this project :  
+   `python -m venv venv`
 
-- `cd /path/to/put/project/in`
-- `git clone https://github.com/OpenClassrooms-Student-Center/Python-OC-Lettings-FR.git`
+   * Activate it :  
+   `venv/bin/activate`
+   
+   * Copy the dependancies available into the requirements.txt file:  
+   `pip install -r requirements.txt` 
 
-#### Créer l'environnement virtuel
+   * Complete the .env file with your personnal information you just created before.  
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `python -m venv venv`
-- `apt-get install python3-venv` (Si l'étape précédente comporte des erreurs avec un paquet non trouvé sur Ubuntu)
-- Activer l'environnement `source venv/bin/activate`
-- Confirmer que la commande `python` exécute l'interpréteur Python dans l'environnement virtuel
-`which python`
-- Confirmer que la version de l'interpréteur Python est la version 3.6 ou supérieure `python --version`
-- Confirmer que la commande `pip` exécute l'exécutable pip dans l'environnement virtuel, `which pip`
-- Pour désactiver l'environnement, `deactivate`
+   **Quick Launch**
 
-#### Exécuter le site
+   Once the installation done, you can run `python manage.py runserver` in the terminal and check the application on http://localhost:8000/
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `source venv/bin/activate`
-- `pip install --requirement requirements.txt`
-- `python manage.py runserver`
-- Aller sur `http://localhost:8000` dans un navigateur.
-- Confirmer que le site fonctionne et qu'il est possible de naviguer (vous devriez voir plusieurs profils et locations).
+   **Using cases**
 
-#### Linting
+   You can create a superuser to create data with:
+   * `python manage.py shell`
+   * `from django.contrib.auth.models import User`
+   * `User.objects.create_superuser(username='admin', email='admin@example.com', password='motdepasse123')`
+      choose the username, email and password of your choice.
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `source venv/bin/activate`
-- `flake8`
+   In order to create more lettings or profiles, you can start to launch the Django app:
+   * `python manage.py runserver`
 
-#### Tests unitaires
+   Now you can check the app on http://localhost:8000/admin and login with your previous superuser credentials. You will be able 
+   to create new data then. 
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- `source venv/bin/activate`
-- `pytest`
+   **How to use Holiday Homes with Docker and Render**
 
-#### Base de données
+   To deploy the Docker image locally you can:
+   * Open Docker desktop.
+   * Open a powershell command and enter the following:
+   `$DOCKER_TAG = (Invoke-RestMethod -Uri "https://hub.docker.com/v2/repositories/emilie2393/oc_lettings/tags?page_size=1").results[0].name; 
+   docker pull emilie2393/oc_lettings:$DOCKER_TAG; if (docker ps -aq -f name=oc_lettings_site) { echo "Arrêt et suppression du conteneur existant..."; 
+   docker stop oc_lettings_site; docker rm oc_lettings_site }; docker run --name oc_lettings_site -d -p 8000:8000 emilie2393/oc_lettings:$DOCKER_TAG`
 
-- `cd /path/to/Python-OC-Lettings-FR`
-- Ouvrir une session shell `sqlite3`
-- Se connecter à la base de données `.open oc-lettings-site.sqlite3`
-- Afficher les tables dans la base de données `.tables`
-- Afficher les colonnes dans le tableau des profils, `pragma table_info(Python-OC-Lettings-FR_profile);`
-- Lancer une requête sur la table des profils, `select user_id, favorite_city from
-  Python-OC-Lettings-FR_profile where favorite_city like 'B%';`
-- `.quit` pour quitter
+     * This command pull the docker image corresponding to the latest tag created.
+     * Then, it stop and delete current container with the name 'oc_letting_site' in order to prevent issues.
+     * Finally it launch the container named 'oc_letting_site' and the image with the latest tag on the port 8000.
+   * You can now see the container running into your Docker desktop and access to the app on http://localhost:8000/
 
-#### Panel d'administration
+   If you have some issues you can run `docker ps` to check the running containers on your computer. 
 
-- Aller sur `http://localhost:8000/admin`
-- Connectez-vous avec l'utilisateur `admin`, mot de passe `Abc1234!`
-
-### Windows
-
-Utilisation de PowerShell, comme ci-dessus sauf :
-
-- Pour activer l'environnement virtuel, `.\venv\Scripts\Activate.ps1` 
-- Remplacer `which <my-command>` par `(Get-Command <my-command>).Path`
+   To deploy the website on Render:
+   * If you need some updates of the website, you can push it on the main branch of the gitlab repository. 
+   * The updates will be available on https://oc-lettings-lwn7.onrender.com
+   * Only the main branch is deployed on Render
