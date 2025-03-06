@@ -7,11 +7,7 @@ stages:
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip_cache"
   PYTHONPATH: "$CI_PROJECT_DIR"
-  DOCKER_REGISTRY: docker.io
   DOCKER_IMAGE: emilie2393/oc_lettings
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip_cache"
-  PYTHONPATH: "$CI_PROJECT_DIR"
-  CONTAINER_NAME: oc_lettings_site
   RENDER_HOOK: "https://api.render.com/deploy/srv-curf0cqj1k6c73arlh0g?key=BupwfnXLcY4"
 
 
