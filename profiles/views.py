@@ -14,7 +14,7 @@ def index(request):
 # Profile page for each username
 def profile(request, username):
     try:
-        profile = get_object_or_404(Profile ,user__username=username)
+        profile = get_object_or_404(Profile, user__username=username)
     except Exception as e:
         capture_message("This profile's id doesn't exist", e)
     context = {'profile': profile}
