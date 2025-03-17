@@ -9,4 +9,3 @@ urlpatterns = [
     path('profiles/', include('profiles.urls')),
     path('admin/', admin.site.urls, name='admin'),
 ]
-
