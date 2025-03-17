@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Letting
 from sentry_sdk import capture_message
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 
 # Index page for the lettings part
@@ -17,6 +18,7 @@ def letting(request, letting_id):
         letting = get_object_or_404(Letting, id=letting_id)
     except Exception as e:
         capture_message("This letting's id doesn't exist", e)
+        raise Http404("This letting's id doesn't exist")
     context = {
         'title': letting.title,
         'address': letting.address,
