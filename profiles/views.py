@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Profile
 from sentry_sdk import capture_message
+from django.shortcuts import get_object_or_404
 
 
 # Index page for profiles part
@@ -13,8 +14,8 @@ def index(request):
 # Profile page for each username
 def profile(request, username):
     try:
-        profile = Profile.objects.get(user__username=username)
+        profile = get_object_or_404(Profile ,user__username=username)
     except Exception as e:
-        capture_message("This id doesn't exist", e)
+        capture_message("This profile's id doesn't exist", e)
     context = {'profile': profile}
     return render(request, 'profiles/profile.html', context)
